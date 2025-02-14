@@ -1,0 +1,129 @@
+#!/bin/bash
+mkdir bash_workdir
+cp data.txt bash_workdir
+cd bash_workdir
+pwd > output_bash.txt
+first_var="I love HPC!"
+echo $first_var
+echo $first_var>>output_bash.txt
+grep -i "80" data.txt>>output_bash.txt
+second_var=$(ls)
+for v in ${second_var[@]}; do
+echo $v>>output_bash.txt
+done
+cp output_bash.txt /home/hpc-learner/projects/week1-bash
+cd $HOME/projects/week1-bash
+
+
+------------------------------------------
+
+
+vi myfirst_slurm_job.sh
+
+#!/bin/bash
+#SBATCH --job-name=test
+#SBATCH --output=slurm1.txt
+#SBATCH --nodes=1
+#SBATCH --time=00:00:05
+
+cd $HOME/scratch
+pwd
+echo $SLURM_JOB_NODELIST
+echo $SLURM_JOB_NUM_NODES
+
+ESC
+:wq
+
+sbatch myfirst_slurm_job.sh
+
+
+-----------------------------------------------
+
+
+module purge
+module load openmpi
+sbatch abc.sh
+
+abc.sh--------
+#!/bin/bash
+#SBATCH --job-name=test
+#SBATCH --output=week2_hellompi.txt
+#SBATCH --nodes=4
+#SBATCH --time=00:00:30
+
+mpif90 hello_new.f90 -o hello_new
+mpirun -np 4 ./hello_new
+
+
+
+-------------------------------------------------
+module purge
+module load mpich or openmpi
+make
+bash ---.sh   ---------
+
+
+#!/bin/bash
+#SBATCH --OUTPUT=stronf_input.dat
+
+mpif90 -o scale.out scale.f90
+mpiexec -np 1 ./scale.out -nx 1000 -ny 10000 -nt 900 >strong_input.dat
+mpif90 -o scale.out scale.f90
+mpiexec -np 2 ./scale.out -nx 1000 -ny 10000 -nt 900 >>strong_input.dat
+mpif90 -o scale.out scale.f90
+mpiexec -np 4 ./scale.out -nx 1000 -ny 10000 -nt 900 >>strong_input.dat
+
+
+
+     1   0.870E+02  1000 10000   900
+     2   0.438E+02  1000 10000   900
+     4   0.473E+02  1000 10000   900
+
+     1   0.873E+02  1000 10000   900
+     2   0.438E+02  1000 10000   900
+     4   0.488E+02  1000 10000   900
+
+     1   0.911E+02  1000 10000   900
+     2   0.447E+02  1000 10000   900
+     4   0.479E+02  1000 10000   900
+
+     1   0.241E+02  1000 10000   900
+     2   0.124E+02  1000 10000   900
+     4   0.133E+02  1000 10000   900
+
+     1   0.259E+02  1000 10000   900
+     2   0.132E+02  1000 10000   900
+     4   0.142E+02  1000 10000   900
+
+     1   0.260E+02  1000 10000   900
+     2   0.132E+02  1000 10000   900
+     4   0.149E+02  1000 10000   900
+
+def main():
+    from time import time
+    import argparse
+    import subprocess
+    import os
+    
+
+    # Read command-line arguments
+    parser = argparse.ArgumentParser()
+    parser.add_argument('-nt', type=int, default=100, help='Number of iterations')
+    parser.add_argument('-nx', type=int, default=1024, help='Number of gridpoints in x-direction')
+    parser.add_argument('-ny', type=int, default=4096, help='Number of gridpoints in y-direction')
+    parser.add_argument('-nc', type=int, default=1, help='Number of processors')
+
+    args = parser.parse_args()
+    N = args.nc
+    X = args.nx
+    Y = args.ny
+    T = args.nt
+    
+    a = "mpiexec -np " + str(N) + " ./scale.out -nx " + str(X) + " -ny " + str(Y) + " -nt " + str(T)
+
+    temp = subprocess.Popen([a], stdout = subprocess.PIPE)
+    output = str(temp.communicate())
+
+#############################
+if (__name__ == "__main__"):
+    main()
